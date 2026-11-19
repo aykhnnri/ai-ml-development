@@ -1,10 +1,3 @@
-"""Lesson 12 — Logistic Regression və Classification Metrics.
-
-Classroom example: customer churn prediction using a small synthetic dataset.
-Run: python lesson_12_class_example.py
-Dependencies: pandas, scikit-learn
-"""
-
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
@@ -17,7 +10,6 @@ from sklearn.metrics import (
 )
 
 
-# 1. Dataset: weekly logins, support tickets, and churn (1 = left, 0 = stayed).
 df = pd.DataFrame({
     "weekly_logins": [
         1, 2, 1, 3, 4, 2, 3, 4,
@@ -39,21 +31,19 @@ df = pd.DataFrame({
     ],
 })
 
-print("First five rows:")
+print("İlk 5 sətir:")
 print(df.head())
-print("\nChurn counts:")
+print("\nChurn class-larının sayı:")
 print(df["churn"].value_counts())
 
-# 2. Features and target.
 X = df[["weekly_logins", "support_tickets"]]
 y = df["churn"]
 
-print("\nFeatures:")
+print("\nFeature-lər:")
 print(X.head())
 print("\nTarget:")
 print(y.head())
 
-# 3. Train/test split (same seed and stratification as in class).
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -62,27 +52,25 @@ X_train, X_test, y_train, y_test = train_test_split(
     stratify=y,
 )
 
-print("\nTrain size:", len(X_train))
-print("Test size:", len(X_test))
+print("\nTrain nümunələrinin sayı:", len(X_train))
+print("Test nümunələrinin sayı:", len(X_test))
 
-# 4. Train Logistic Regression and predict labels.
 model = LogisticRegression(max_iter=1000)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
-print("\nReal values:")
+print("\nReal cavablar:")
 print(y_test.to_list())
-print("Predictions:")
+print("Modelin prediction-ları:")
 print(y_pred)
 
-# 5. Predict probabilities for both classes, then for churn (class 1).
-print("\nClasses:")
+print("\nClass-lar:")
 print(model.classes_)
-print("Probabilities:")
+print("Hər iki class üçün probability-lər:")
 print(model.predict_proba(X_test))
 
 churn_probabilities = model.predict_proba(X_test)[:, 1]
-print("\nChurn probabilities:")
+print("\nMüştərilərin ayrılma probability-ləri:")
 print(churn_probabilities)
 
 results = X_test.copy()
@@ -90,29 +78,27 @@ results["actual"] = y_test
 results["predicted"] = y_pred
 results["churn_probability"] = churn_probabilities.round(3)
 
-print("\nResults sorted by churn probability:")
+print("\nAyrılma probability-sinə görə sıralanmış nəticələr:")
 print(results.sort_values("churn_probability"))
 
-# 6. Default threshold = 0.5; then reduce it to 0.3.
 threshold = 0.5
 custom_predictions = (churn_probabilities >= threshold).astype(int)
-print("\nCustom predictions at 0.5:")
+print("\nThreshold 0.5 üçün prediction-lar:")
 print(custom_predictions)
-print("Default model predictions:")
+print("Modelin default prediction-ları:")
 print(y_pred)
 
 threshold = 0.3
 predictions_03 = (churn_probabilities >= threshold).astype(int)
 results["predicted_03"] = predictions_03
 
-print("\nThreshold 0.3 compared with default predictions:")
+print("\nThreshold 0.3 və default prediction müqayisəsi:")
 print(
     results[
         ["actual", "churn_probability", "predicted", "predicted_03"]
     ].sort_values("churn_probability")
 )
 
-# 7. Confusion matrix: [[TN, FP], [FN, TP]].
 cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
 print("\nConfusion Matrix:")
 print(cm)
@@ -127,20 +113,18 @@ print("False Negative:", fn)
 print("True Positive:", tp)
 
 errors = results[results["actual"] != results["predicted"]]
-print("\nWrong predictions:")
+print("\nSəhv prediction-lar:")
 print(errors)
 
-# 8. Classification metrics.
-print("\nModel Evaluation")
+print("\nModelin qiymətləndirilməsi")
 print("Accuracy:", round(accuracy_score(y_test, y_pred), 2))
 print("Precision:", round(precision_score(y_test, y_pred), 2))
 print("Recall:", round(recall_score(y_test, y_pred), 2))
 print("F1 Score:", round(f1_score(y_test, y_pred), 2))
 
-# 9. Compare three thresholds with the SAME trained model.
 for threshold in [0.3, 0.5, 0.7]:
     predictions = (churn_probabilities >= threshold).astype(int)
-    print("\nThreshold:", threshold)
+    print("\nThreshold dəyəri:", threshold)
     print("Accuracy:", round(accuracy_score(y_test, predictions), 2))
     print("Precision:", round(precision_score(y_test, predictions), 2))
     print("Recall:", round(recall_score(y_test, predictions), 2))
@@ -148,9 +132,8 @@ for threshold in [0.3, 0.5, 0.7]:
     print("Confusion Matrix:")
     print(confusion_matrix(y_test, predictions, labels=[0, 1]))
 
-# 10. Extra threshold comparison from the final student exercise.
 for threshold in [0.35, 0.5, 0.65]:
     predictions = (churn_probabilities >= threshold).astype(int)
-    print("\nThreshold:", threshold)
+    print("\nThreshold dəyəri:", threshold)
     print("Precision:", round(precision_score(y_test, predictions), 2))
     print("Recall:", round(recall_score(y_test, predictions), 2))
